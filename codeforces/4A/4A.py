@@ -1,8 +1,8 @@
 # https://codeforces.com/problemset/problem/?/?
 
 def func_sol(raw_data):
-    raise NotImplementedError()
-    return str()
+    w = int(raw_data)
+    return 'YES' if w % 2 == 0 and w > 2 else 'NO'
 
 
 def main():

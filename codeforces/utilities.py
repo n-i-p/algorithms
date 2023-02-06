@@ -10,11 +10,33 @@ def run_tests(func):
             with open(os.path.join(tests_path, outfile), 'r') as fout:
                 din = fin.read()
                 dout = fout.read()
-                func_ret = func(din)
-                if dout != func_ret:
-                    print(f'FAILED {infile}:\n{din}\n')
-                    print(f'EXPECTED {outfile}:\n{dout}\n')
-                    print(f'FUNCTION RETURNED:\n{func_ret}\n')
+                fret = func(din)
+                if dout == fret:
+                    print(f'-OK-: {infile}')
                 else:
-                    print(f'OK: {infile}')
+                    print(f'FAIL: {infile}:')
+                    dout_lines = dout.split('\n')
+                    fret_lines = fret.split('\n')
+                    max_len = max([len(dout_line) for dout_line in dout_lines])
+                    for dout_line, fret_line in zip(dout_lines, fret_lines):
+                        msg = '-ok-'
+                        if dout_line != fret_line:
+                            msg = 'DIFF'
+                        log = '{{msg}} {{dout_line:{max_len}}} {{fret_line:{max_len}}}'
+                        print(log.format(max_len=max_len).format(msg=msg, dout_line=dout_line, fret_line=fret_line))
     print(f'Tests Run: {len(infiles)}')
+
+
+def generate(problem_id, number_of_tests):
+    import os
+    os.makedirs(f'{problem_id}/tests', exist_ok=True)
+    for number in range(1, number_of_tests + 1):
+        open(f'{problem_id}/tests/{problem_id}_{number:>02}.in', 'w').close()
+        open(f'{problem_id}/tests/{problem_id}_{number:>02}.out', 'w').close()
+    with open(f'template.py', 'r') as f:
+        with open(f'{problem_id}/{problem_id}.py', 'w') as g:
+            g.write(f.read().replace('/?/?', f'/{problem_id[:-1]}/{problem_id[-1]}'))
+
+
+if __name__ == '__main__':
+    generate(input("Problem id: "), int(input('Number of tests: ')))
