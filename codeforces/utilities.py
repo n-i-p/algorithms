@@ -1,6 +1,12 @@
+import os
+import re
+import sys
+
+import bs4
+import requests
+
+
 def run_tests(func):
-    import os
-    import sys
     problem_path = os.path.dirname(sys.argv[0])
     tests_path = os.path.join(problem_path, 'tests')
     infiles = [fn for fn in os.listdir(tests_path) if fn.endswith('.in')]
@@ -27,16 +33,33 @@ def run_tests(func):
     print(f'Tests Run: {len(infiles)}')
 
 
-def generate(problem_id, number_of_tests):
-    import os
-    os.makedirs(f'{problem_id}/tests', exist_ok=True)
-    for number in range(1, number_of_tests + 1):
-        open(f'{problem_id}/tests/{problem_id}_{number:>02}.in', 'w').close()
-        open(f'{problem_id}/tests/{problem_id}_{number:>02}.out', 'w').close()
+def generate(problem_id):
+    problem_number, problem_letter = re.match('([0-9]+)(.+)', problem_id).groups()
+    url = f'https://codeforces.com/problemset/problem/{problem_number}/{problem_letter}'
+    soup = bs4.BeautifulSoup(requests.get(url).content, features='html.parser')
+    ins = soup.find_all('div', {'class': "input"})
+    outs = soup.find_all('div', {'class': "output"})
+    assert len(ins) == len(outs)
+
+    def _convert(bs4_elem_tag):
+        for br in bs4_elem_tag.find_all('br'):
+            br.replace_with('\n')
+        return ''.join(bs4_elem_tag.find('pre').contents)
+
+    def _save(filename, content):
+        with open(filename, 'w') as f:
+            f.write(content)
+
+    tests_folder = f'{problem_id}/tests'
+    os.makedirs(tests_folder, exist_ok=True)
+
+    for number, (i, o) in enumerate(zip(ins, outs)):
+        _save(f'{tests_folder}/{problem_id}_{number + 1:>02}.in', _convert(i))
+        _save(f'{tests_folder}/{problem_id}_{number + 1:>02}.out', _convert(o))
+
     with open(f'template.py', 'r') as f:
-        with open(f'{problem_id}/{problem_id}.py', 'w') as g:
-            g.write(f.read().replace('/?/?', f'/{problem_id[:-1]}/{problem_id[-1]}'))
+        _save(f'{problem_id}/{problem_id}.py', f.read().replace('/?/?', f'/{problem_number}/{problem_letter}'))
 
 
 if __name__ == '__main__':
-    generate(input("Problem id: "), int(input('Number of tests: ')))
+    generate(input("Problem id: "))
