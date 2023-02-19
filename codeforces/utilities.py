@@ -21,11 +21,14 @@ def run_tests(func):
                     print(f'-OK-: {infile}')
                 else:
                     print(f'FAIL: {infile}:')
+                    print(f'CHCK <expected_value> <returned_value>')
                     dout_lines = dout.split('\n')
                     fret_lines = fret.split('\n')
                     max_len = max([len(dout_line) for dout_line in dout_lines])
                     for dout_line, fret_line in zip(dout_lines, fret_lines):
                         msg = '-ok-'
+                        if dout_line == '':
+                            continue
                         if dout_line != fret_line:
                             msg = 'DIFF'
                         log = '{{msg}} {{dout_line:{max_len}}} {{fret_line:{max_len}}}'
