@@ -17,7 +17,7 @@ def run_tests(func):
                 din = fin.read()
                 dout = fout.read()
                 fret = func(din)
-                if dout == fret:
+                if dout.strip() == fret.strip():
                     print(f'-OK-: {infile}')
                 else:
                     print(f'FAIL: {infile}:')
