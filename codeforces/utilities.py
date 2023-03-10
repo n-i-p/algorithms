@@ -16,7 +16,7 @@ def run_tests(func):
             with open(os.path.join(tests_path, outfile), 'r') as fout:
                 din = fin.read()
                 dout = fout.read()
-                fret = func(din)
+                fret = func(din.split('\n')[:-1])
                 if dout.strip() == fret.strip():
                     print(f'-OK-: {infile}')
                 else:

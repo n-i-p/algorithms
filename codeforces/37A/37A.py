@@ -1,8 +1,12 @@
-# https://codeforces.com/problemset/problem/?/?
+# https://codeforces.com/problemset/problem/37/A
 
 def func_sol(lines):
-    raise NotImplementedError()
-    return str()
+    f = [0] * 1001
+    n = int(lines[0])
+    a = list(map(int, lines[1].split(' ')))
+    for e in a:
+        f[e] += 1
+    return str(max(f)) + ' ' + str(len([e for e in f if e != 0]))
 
 
 def main():
